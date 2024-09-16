@@ -29,7 +29,7 @@ export class CouchbaseService {
     }
   }
 
-  async saveUrlMapping(shortUrl: string, longUrl: string): Promise<void> {
+  async createShortUrl(shortUrl: string, longUrl: string): Promise<void> {
     try {
       if (!this.collection) {
         this.logger.error('Collection is not initialized');
@@ -41,6 +41,25 @@ export class CouchbaseService {
     } catch (error) {
       this.logger.error('Error saving URL mapping:', error);
       throw error;
+    }
+  }
+
+  async getLongUrl(shortUrl: string): Promise<string> {
+    try {
+      if (!this.collection) {
+        this.logger.error('Collection is not initialized');
+        await this.connect();
+      }
+
+      const result = await this.collection.get(shortUrl);
+      this.logger.log(`Found longUrl for shortUrl: ${shortUrl}`);
+      return result.content.longUrl;
+    } catch (error) {
+      this.logger.error(
+        `Error getting long URL for shortUrl ${shortUrl}:`,
+        error,
+      );
+      throw new Error(`No mapping found for short URL: ${shortUrl}`);
     }
   }
 }

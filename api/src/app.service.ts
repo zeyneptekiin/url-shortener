@@ -15,8 +15,13 @@ export class AppService {
 
     const shortUrl = `www.xxx.com/${base62Id.padStart(7, '0')}`;
 
-    await this.couchbaseService.saveUrlMapping(shortUrl, longUrl);
+    await this.couchbaseService.createShortUrl(shortUrl, longUrl);
 
     return shortUrl;
+  }
+
+  async getLongUrl(shortUrl: string): Promise<string> {
+    const longUrl = await this.couchbaseService.getLongUrl(shortUrl);
+    return longUrl;
   }
 }
