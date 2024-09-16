@@ -15,7 +15,7 @@ export class AppService {
 
     const shortUrl = `www.xxx.com/${base62Id.padStart(7, '0')}`;
 
-    await this.couchbaseService.createShortUrl(shortUrl, longUrl);
+    await this.couchbaseService.createShortUrl(uuid, shortUrl, longUrl);
 
     return shortUrl;
   }

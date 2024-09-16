@@ -29,15 +29,19 @@ export class CouchbaseService {
     }
   }
 
-  async createShortUrl(shortUrl: string, longUrl: string): Promise<void> {
+  async createShortUrl(
+    id: string,
+    shortUrl: string,
+    longUrl: string,
+  ): Promise<void> {
     try {
       if (!this.collection) {
         this.logger.error('Collection is not initialized');
         await this.connect();
       }
 
-      await this.collection.upsert(shortUrl, { longUrl });
-      this.logger.log('URL mapping saved successfully');
+      await this.collection.upsert(id, { shortUrl, longUrl });
+      this.logger.log(`URL mapping saved successfully with ID: ${id}`);
     } catch (error) {
       this.logger.error('Error saving URL mapping:', error);
       throw error;
