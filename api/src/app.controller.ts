@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get} from '@nestjs/common';
+import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller()
@@ -11,7 +11,11 @@ export class AppController {
   }
 
   @Get('longUrl')
-  async getUrl(@Body('url') shortUrl: string): Promise<string> {
+  async getLongUrl(@Query('shortUrl') shortUrl: string): Promise<string> {
+    if (!shortUrl) {
+      throw new Error('Short URL parameter is required');
+    }
+    console.log('Received shortUrl:', shortUrl);
     return this.appService.getLongUrl(shortUrl);
   }
 }
