@@ -21,7 +21,7 @@ export class CouchbaseService {
 
   async connect(): Promise<void> {
     try {
-      this.cluster = await Cluster.connect('couchbase://localhost', {
+      this.cluster = await Cluster.connect('couchbase://138.197.176.55', {
         username: 'Administrator',
         password: '017985',
       });
