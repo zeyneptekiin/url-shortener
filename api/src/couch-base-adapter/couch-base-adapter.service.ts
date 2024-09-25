@@ -88,7 +88,7 @@ export class CouchbaseService {
     const base62Id = base62Encode(bigIntId);
     const shortenedBase62Id = base62Id.slice(0, 7);
 
-    return `www.xyz.com/${shortenedBase62Id}`;
+    return `www.shrt.com/${shortenedBase62Id}`;
   }
 
   async getLongUrl(shortUrl: string): Promise<string> {
@@ -98,48 +98,39 @@ export class CouchbaseService {
       }
 
       const selectQuery = `
-      SELECT longUrl, clickCounter
-      FROM \`doc1\`
-      WHERE shortUrl = $1
-      LIMIT 1;
-    `;
+        SELECT longUrl, clickCounter
+        FROM \`doc1\`
+        WHERE shortUrl = $1
+        LIMIT 1;
+        `;
 
       const selectResult = await this.cluster.query(selectQuery, {
         parameters: [shortUrl],
       });
 
       if (selectResult.rows.length === 0) {
-        this.logger.error(`No mapping found for short URL: ${shortUrl}`);
-        throw new NotFoundException(
-          `No mapping found for short URL: ${shortUrl}`,
-        );
+        throw new NotFoundException(`No mapping found for short URL: ${shortUrl}`);
       }
 
       const { longUrl, clickCounter } = selectResult.rows[0];
 
+      const formattedLongUrl = longUrl.startsWith('http')
+        ? longUrl
+        : `http://${longUrl}`;
+
       const updateQuery = `
-      UPDATE \`doc1\`
-      SET clickCounter = $1
-      WHERE shortUrl = $2;
-    `;
+        UPDATE \`doc1\`
+        SET clickCounter = $1
+        WHERE shortUrl = $2;
+        `;
 
       await this.cluster.query(updateQuery, {
         parameters: [clickCounter + 1, shortUrl],
       });
 
-      this.logger.log(
-        `Updated count for short URL: ${shortUrl}, click counter: ${clickCounter + 1}`,
-      );
-
-      return longUrl;
+      return formattedLongUrl;
     } catch (error) {
-      this.logger.error(
-        `Error getting long URL for short URL ${shortUrl}: ${error.message}`,
-      );
-      throw new HttpException(
-        `Error retrieving long URL: ${error.message}`,
-        500,
-      );
+      throw new HttpException(`Error retrieving long URL: ${error.message}`, 500);
     }
   }
 }
