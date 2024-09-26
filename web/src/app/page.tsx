@@ -1,4 +1,3 @@
-// pages/index.tsx
 "use client";
 
 import { useState } from 'react';
@@ -15,10 +14,10 @@ export default function Home() {
                 url: urlInput,
             });
 
-            // Directly use the response data
-            setShortenedUrl(response.data); // Set shortenedUrl to the direct response
+            setShortenedUrl(response.data);
             setError('');
         } catch (err) {
+            console.error(err);
             setError('Failed to shorten the URL.');
             setShortenedUrl('');
         }
