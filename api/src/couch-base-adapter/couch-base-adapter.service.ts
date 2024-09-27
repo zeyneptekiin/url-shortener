@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CouchbaseService {
-  private cluster: Cluster;
+  cluster: Cluster;
   private bucket: Bucket;
   private collection: Collection;
   private logger = new Logger(CouchbaseService.name);
