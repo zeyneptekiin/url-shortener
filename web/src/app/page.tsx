@@ -10,7 +10,7 @@ export default function Home() {
 
     const handleShortenUrl = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/shorten', {
+            const response = await axios.post(`${process.env.API_URL}/shorten`, {
                 url: urlInput,
             });
 
