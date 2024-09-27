@@ -26,6 +26,7 @@ export class CouchbaseService {
         password: '017985',
       });
 
+      await this.createBucketIfNotExists('doc1');
       this.bucket = this.cluster.bucket('doc1');
       const scope = this.bucket.scope('_default');
       this.collection = scope.collection('_default');
@@ -34,6 +35,29 @@ export class CouchbaseService {
     } catch (error) {
       this.logger.error('Error connecting to Couchbase:', error);
       throw error;
+    }
+  }
+
+  private async createBucketIfNotExists(bucketName: string): Promise<void> {
+    try {
+      const bucketManager = this.cluster.buckets();
+      const existingBuckets = await bucketManager.getAllBuckets();
+
+      const bucketExists = existingBuckets.some(
+        (bucket) => bucket.name === bucketName,
+      );
+
+      if (!bucketExists) {
+        await bucketManager.createBucket({
+          name: bucketName,
+          ramQuotaMB: 100,
+        });
+        this.logger.log(`Bucket "${bucketName}" created successfully.`);
+      } else {
+        this.logger.log(`Bucket "${bucketName}" already exists.`);
+      }
+    } catch (error) {
+      this.logger.error('Error creating bucket:', error);
     }
   }
 
@@ -109,7 +133,9 @@ export class CouchbaseService {
       });
 
       if (selectResult.rows.length === 0) {
-        throw new NotFoundException(`No mapping found for short URL: ${shortUrl}`);
+        throw new NotFoundException(
+          `No mapping found for short URL: ${shortUrl}`,
+        );
       }
 
       const { longUrl, clickCounter } = selectResult.rows[0];
@@ -130,7 +156,10 @@ export class CouchbaseService {
 
       return formattedLongUrl;
     } catch (error) {
-      throw new HttpException(`Error retrieving long URL: ${error.message}`, 500);
+      throw new HttpException(
+        `Error retrieving long URL: ${error.message}`,
+        500,
+      );
     }
   }
 }
