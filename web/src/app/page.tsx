@@ -8,9 +8,11 @@ export default function Home() {
     const [shortenedUrl, setShortenedUrl] = useState('');
     const [error, setError] = useState('');
 
+    const apiUrl = process.env.API_URL || 'http://localhost:5001';
+
     const handleShortenUrl = async () => {
         try {
-            const response = await axios.post('http://localhost:5001/shorten', {
+            const response = await axios.post(`${apiUrl}/shorten`, {
                 url: urlInput,
             });
 
