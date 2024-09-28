@@ -13,8 +13,8 @@ export class AppController {
 
   @Get()
   async redirectToLongUrl(
-      @Query('shortUrl') shortUrl: string,
-      @Res() res: Response,
+    @Query('shortUrl') shortUrl: string,
+    @Res() res: Response,
   ): Promise<void> {
     try {
       const longUrl = await this.appService.getLongUrl(shortUrl);
@@ -23,5 +23,10 @@ export class AppController {
       console.error(`Error redirecting short URL: ${shortUrl}`, error);
       res.status(404).send('URL not found');
     }
+  }
+
+  @Get('health')
+  async health() {
+    return this.appService.healthCheck();
   }
 }

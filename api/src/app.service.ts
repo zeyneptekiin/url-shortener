@@ -43,4 +43,17 @@ export class AppService {
       return false;
     }
   }
+
+  async healthCheck(): Promise<{ status: string; message?: string }> {
+    const isHealthy = await this.checkCouchbaseHealth();
+
+    if (isHealthy) {
+      return { status: 'healthy' };
+    } else {
+      return {
+        status: 'unhealthy',
+        message: 'Couchbase is not healthy',
+      };
+    }
+  }
 }
