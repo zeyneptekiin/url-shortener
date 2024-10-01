@@ -17,13 +17,17 @@ export class AppController {
     @Res() res: Response,
   ): Promise<void> {
     try {
-      const longUrl = await this.appService.getLongUrl(
-        `https://usrt.xyz/${shortUrl}`,
-      );
-      return res.redirect(longUrl);
+      const fullShortUrl = `http://usrt.xyz/${shortUrl}`;
+      const longUrl = await this.appService.getLongUrl(fullShortUrl);
+
+      if (longUrl) {
+        return res.redirect(longUrl);
+      } else {
+        res.status(404).send('URL not found');
+      }
     } catch (error) {
       console.error(`Error redirecting short URL: ${shortUrl}`, error);
-      res.status(404).send('URL not found');
+      res.status(500).send('Internal server error');
     }
   }
 
