@@ -100,7 +100,7 @@ export class CouchbaseService implements OnModuleInit {
     const base62Id = base62Encode(bigIntId);
     const shortenedBase62Id = base62Id.slice(0, 7);
 
-    return `www.shrt.com/${shortenedBase62Id}`;
+    return `https://usrt.xyz/${shortenedBase62Id}`;
   }
 
   async getLongUrl(shortUrl: string): Promise<string> {

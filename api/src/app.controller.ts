@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query, Res } from '@nestjs/common';
+import { Controller, Post, Body, Get, Res, Param } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Response } from 'express';
 
@@ -11,13 +11,15 @@ export class AppController {
     return this.appService.generateShortUrl(longUrl);
   }
 
-  @Get()
+  @Get(':shortUrl')
   async redirectToLongUrl(
-    @Query('shortUrl') shortUrl: string,
+    @Param('shortUrl') shortUrl: string,
     @Res() res: Response,
   ): Promise<void> {
     try {
-      const longUrl = await this.appService.getLongUrl(shortUrl);
+      const longUrl = await this.appService.getLongUrl(
+        `https://usrt.xyz/${shortUrl}`,
+      );
       return res.redirect(longUrl);
     } catch (error) {
       console.error(`Error redirecting short URL: ${shortUrl}`, error);
