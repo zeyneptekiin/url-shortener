@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@nestjs/config": "^3.2.3",
     "@nestjs/schedule": "^4.1.1",
     "couchbase": "^4.4.1",
     "rxjs": "^7.8.1"

@@ -3,61 +3,49 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { Cluster, Bucket, Collection, DocumentNotFoundError } from 'couchbase';
 import { base62Encode, bufferToBigInt } from '../helpers/base62';
 import { v4 as uuidv4 } from 'uuid';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class CouchbaseService {
+export class CouchbaseService implements OnModuleInit {
   cluster: Cluster;
   private bucket: Bucket;
   private collection: Collection;
-  private logger = new Logger(CouchbaseService.name);
+  private readonly logger = new Logger(CouchbaseService.name);
 
-  constructor() {
-    this.connect();
+  constructor(private readonly configService: ConfigService) {}
+
+  async onModuleInit() {
+    await this.connect();
   }
 
-  async connect(): Promise<void> {
+  public async connect(): Promise<void> {
     try {
-      this.cluster = await Cluster.connect('couchbase://172.18.0.2', {
-        username: 'Administrator',
-        password: '017985',
+      const connectionUrl = this.configService.get<string>('COUCHBASE_URL');
+      const userName = this.configService.get<string>('COUCHBASE_USERNAME');
+      const password = this.configService.get<string>('COUCHBASE_PASSWORD');
+
+      this.logger.log(`Connecting to Couchbase with URL: ${connectionUrl}`);
+
+      this.cluster = await Cluster.connect(connectionUrl, {
+        username: userName,
+        password: password,
       });
 
-      await this.createBucketIfNotExists('doc1');
+      this.logger.log(`Connected to Couchbase successfully.`);
+
       this.bucket = this.cluster.bucket('doc1');
       const scope = this.bucket.scope('_default');
       this.collection = scope.collection('_default');
 
-      this.logger.log('Connected to Couchbase and collection set');
+      this.logger.log('Couchbase collection initialized.');
     } catch (error) {
-      this.logger.error('Error connecting to Couchbase:', error);
-      throw error;
-    }
-  }
-
-  private async createBucketIfNotExists(bucketName: string): Promise<void> {
-    try {
-      const bucketManager = this.cluster.buckets();
-      const existingBuckets = await bucketManager.getAllBuckets();
-
-      const bucketExists = existingBuckets.some(
-        (bucket) => bucket.name === bucketName,
-      );
-
-      if (!bucketExists) {
-        await bucketManager.createBucket({
-          name: bucketName,
-          ramQuotaMB: 100,
-        });
-        this.logger.log(`Bucket "${bucketName}" created successfully.`);
-      } else {
-        this.logger.log(`Bucket "${bucketName}" already exists.`);
-      }
-    } catch (error) {
-      this.logger.error('Error creating bucket:', error);
+      this.logger.error('Error connecting to Couchbase:', error.message);
+      throw new HttpException('Couchbase connection failed', 500);
     }
   }
 
@@ -105,7 +93,7 @@ export class CouchbaseService {
     }
   }
 
-  generateNewShortUrl(): string {
+  private generateNewShortUrl(): string {
     const uuid = uuidv4();
     const buffer = Buffer.from(uuid.replace(/-/g, ''), 'hex');
     const bigIntId = bufferToBigInt(buffer);
@@ -126,7 +114,7 @@ export class CouchbaseService {
         FROM \`doc1\`
         WHERE shortUrl = $1
         LIMIT 1;
-        `;
+      `;
 
       const selectResult = await this.cluster.query(selectQuery, {
         parameters: [shortUrl],
@@ -148,7 +136,7 @@ export class CouchbaseService {
         UPDATE \`doc1\`
         SET clickCounter = $1
         WHERE shortUrl = $2;
-        `;
+      `;
 
       await this.cluster.query(updateQuery, {
         parameters: [clickCounter + 1, shortUrl],
@@ -156,6 +144,7 @@ export class CouchbaseService {
 
       return formattedLongUrl;
     } catch (error) {
+      this.logger.error('Error retrieving long URL:', error);
       throw new HttpException(
         `Error retrieving long URL: ${error.message}`,
         500,

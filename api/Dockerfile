@@ -10,6 +10,10 @@ COPY . .
 
 RUN npm run build
 
-CMD ["npm", "run", "start:prod"]
+RUN npm prune --production
 
-EXPOSE 5000
+COPY .env .env
+
+EXPOSE 5001
+
+CMD ["npm", "run", "start:prod"]

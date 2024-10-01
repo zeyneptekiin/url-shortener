@@ -8,7 +8,7 @@ export default function Home() {
     const [shortenedUrl, setShortenedUrl] = useState('');
     const [error, setError] = useState('');
 
-    const apiUrl = process.env.API_URL || 'http://localhost:5001';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     const handleShortenUrl = async () => {
         try {

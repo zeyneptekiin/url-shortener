@@ -1,64 +1,19 @@
 services:
-  couchbase:
-    build:
-      context: ./couchbase
-      dockerfile: Dockerfile
-    image: couchbase:latest
-    environment:
-      - CLUSTER_NAME=cluster
-      - COUCHBASE_ADMINISTRATOR_USERNAME=Administrator
-      - COUCHBASE_ADMINISTRATOR_PASSWORD=017985
-      - COUCHBASE_BUCKET=doc1
-      - COUCHBASE_BUCKET_TYPE=couchbase
-      - COUCHBASE_BUCKET_RAMSIZE=256
-      - COUCHBASE_INDEX_RAM_SIZE=512
-      - COUCHBASE_SERVICES=data,index,query
-    ports:
-      - "8091:8091"
-      - "8092:8092"
-      - "8093:8093"
-      - "8094:8094"
-      - "11210:11210"
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://couchbase:8091"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
-    environment:
-      - COUCHBASE_HOST=couchbase
-      - COUCHBASE_USERNAME=Administrator
-      - COUCHBASE_PASSWORD=017985
-      - COUCHBASE_BUCKET=doc1
     ports:
       - "5001:5001"
-    depends_on:
-      couchbase:
-        condition: service_healthy
     networks:
       - app-network
-    restart: always
 
   web:
     build:
       context: ./web
       dockerfile: Dockerfile
-    environment:
-      - COUCHBASE_HOST=couchbase
-      - COUCHBASE_USERNAME=Administrator
-      - COUCHBASE_PASSWORD=017985
-      - COUCHBASE_BUCKET=doc1
     ports:
       - "3000:3000"
-    depends_on:
-      couchbase:
-        condition: service_healthy
     networks:
       - app-network
 
