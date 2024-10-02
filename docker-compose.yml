@@ -1,13 +1,10 @@
 services:
-  nginx:
-    image: nginx:latest
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
     ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - web
-      - api
+      - "5001:5001"
     networks:
       - app-network
 
@@ -15,17 +12,17 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
-    expose:
-      - "3000"
+    ports:
+      - "3000:3000"
     networks:
       - app-network
 
-  api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    expose:
-      - "5001"
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
     networks:
       - app-network
 
