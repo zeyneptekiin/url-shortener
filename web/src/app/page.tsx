@@ -26,8 +26,18 @@ export default function Home() {
     };
 
     const handleCopy = () => {
-        navigator.clipboard.writeText(shortenedUrl);
-        alert('Shortened URL copied!');
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shortenedUrl)
+                .then(() => {
+                    alert('Shortened URL copied!');
+                })
+                .catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    alert('Failed to copy the URL.');
+                });
+        } else {
+            alert('Clipboard API not supported in this browser.');
+        }
     };
 
     return (
