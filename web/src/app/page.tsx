@@ -32,13 +32,29 @@ export default function Home() {
                     alert('Shortened URL copied!');
                 })
                 .catch(err => {
-                    console.error('Failed to copy text: ', err);
+                    console.error('Failed to copy the URL:', err);
                     alert('Failed to copy the URL.');
                 });
         } else {
-            alert('Clipboard API not supported in this browser.');
+            const textArea = document.createElement("textarea");
+            textArea.value = shortenedUrl;
+            document.body.appendChild(textArea);
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                const msg = successful ? 'Shortened URL copied!' : 'Failed to copy the URL.';
+                alert(msg);
+            } catch (err) {
+                console.error('Failed to copy with execCommand:', err);
+                alert('Failed to copy the URL.');
+            }
+
+            document.body.removeChild(textArea);
         }
     };
+
+
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen p-8">
