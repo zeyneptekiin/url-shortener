@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { UrlShortenerController } from './url-shortener/url-shortener.controller';
+import { UrlShortenerService } from './url-shortener/url-shortener.service';
 import { CouchbaseService } from './couch-base-adapter/couch-base-adapter.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
@@ -14,7 +14,7 @@ import { config } from './config';
     }),
     ScheduleModule.forRoot(),
   ],
-  controllers: [AppController],
-  providers: [AppService, CouchbaseService],
+  controllers: [UrlShortenerController],
+  providers: [UrlShortenerService, CouchbaseService],
 })
 export class AppModule {}

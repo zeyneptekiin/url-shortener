@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { CouchbaseService } from './couch-base-adapter/couch-base-adapter.service';
+import { CouchbaseService } from '../couch-base-adapter/couch-base-adapter.service';
 import { Cron } from '@nestjs/schedule';
 
 @Injectable()
-export class AppService {
-  private readonly logger = new Logger(AppService.name);
+export class UrlShortenerService {
+  private readonly logger = new Logger(UrlShortenerService.name);
   constructor(private readonly couchbaseService: CouchbaseService) {}
 
   async generateShortUrl(longUrl: string): Promise<string> {

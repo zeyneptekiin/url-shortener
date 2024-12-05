@@ -6,7 +6,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { Cluster, Bucket, Collection, DocumentNotFoundError } from 'couchbase';
-import { base62Encode, bufferToBigInt } from '../helpers/base62';
+import { base62Encode, bufferToBigInt } from '../url-shortener/helpers/base62';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 

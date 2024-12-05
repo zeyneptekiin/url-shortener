@@ -1,10 +1,10 @@
 import { Controller, Post, Body, Get, Res, Param } from '@nestjs/common';
-import { AppService } from './app.service';
+import { UrlShortenerService } from './url-shortener.service';
 import { Response } from 'express';
 
 @Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
+export class UrlShortenerController {
+  constructor(private readonly appService: UrlShortenerService) {}
 
   @Post('shorten')
   async shortenUrl(@Body('url') longUrl: string): Promise<string> {
