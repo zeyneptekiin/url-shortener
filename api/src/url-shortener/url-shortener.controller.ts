@@ -1,12 +1,22 @@
-import { Controller, Post, Body, Get, Res, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Res,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { UrlShortenerService } from './url-shortener.service';
 import { Response } from 'express';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller()
 export class UrlShortenerController {
   constructor(private readonly appService: UrlShortenerService) {}
 
   @Post('shorten')
+  @UseGuards(AuthGuard)
   async shortenUrl(@Body('url') longUrl: string): Promise<string> {
     return this.appService.generateShortUrl(longUrl);
   }
