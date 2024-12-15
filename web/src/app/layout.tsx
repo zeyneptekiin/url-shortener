@@ -13,10 +13,17 @@ export default function RootLayout({
                                    }: {
     children: React.ReactNode;
 }) {
+
+    const clientId = process.env.GOOGLE_CLIENT_ID as string;
+
+    if (!clientId) {
+        throw new Error("Google Client ID is not defined in environment variables.");
+    }
+
     return (
         <html lang="en">
         <body className={`antialiased`}>
-        <GoogleOAuthProvider clientId="600224542939-ni6fgnvp9jd22do9s3d18mvggn4opfk5.apps.googleusercontent.com">
+        <GoogleOAuthProvider clientId={clientId}>
             {children}
         </GoogleOAuthProvider>
         </body>
