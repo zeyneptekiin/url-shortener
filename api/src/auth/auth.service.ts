@@ -38,10 +38,58 @@ export class AuthService {
   }
 
   async login(data: LoginDto): Promise<{ access_token: string }> {
-    const user = await this.userRepository.findOneBy({ username: data.username });
+    const user = await this.userRepository.findOneBy({
+      username: data.username,
+    });
 
     if (!user || !(await bcrypt.compare(data.password, user.password))) {
       throw new UnauthorizedException('Invalid username or password');
+    }
+
+    const payload = { sub: user.id, username: user.username };
+    const token = this.jwtService.sign(payload);
+
+    return { access_token: token };
+  }
+
+  async googleLogin(user: any): Promise<{ access_token: string }> {
+    const { email, firstName, lastName } = user;
+
+    let existingUser = await this.userRepository.findOne({
+      where: { username: email },
+    });
+
+    if (!existingUser) {
+      existingUser = this.userRepository.create({
+        username: email,
+        password: '',
+        firstName,
+        lastName,
+      });
+      await this.userRepository.save(existingUser);
+    }
+
+    const payload = { sub: existingUser.id, username: existingUser.username };
+    const token = this.jwtService.sign(payload);
+
+    return { access_token: token };
+  }
+
+  async validateGoogleUser(profile: any): Promise<{ access_token: string }> {
+    const { email, firstName, lastName } = profile;
+
+    let user = await this.userRepository.findOne({
+      where: { username: email },
+    });
+
+    if (!user) {
+      user = this.userRepository.create({
+        username: email,
+        password: null,
+        firstName,
+        lastName,
+      });
+      await this.userRepository.save(user);
     }
 
     const payload = { sub: user.id, username: user.username };
