@@ -1,6 +1,11 @@
-import {GoogleLogin} from "@react-oauth/google";
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 
-export const GoogleLoginWrapper = ({ onSuccess, onError }: any) => {
+type GoogleLoginWrapperProps = {
+    onSuccess: (response: CredentialResponse) => void;
+    onError: () => void;
+};
+
+export const GoogleLoginWrapper = ({ onSuccess, onError }: GoogleLoginWrapperProps) => {
     return (
         <div className="mt-4">
             <GoogleLogin
