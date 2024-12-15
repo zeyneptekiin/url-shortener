@@ -1,6 +1,22 @@
-import {ErrorMessage} from "@/components/ErrorMessage";
+import { ErrorMessage } from "@/components/ErrorMessage";
 
-export const RegisterForm = ({ onSubmit, username, setUsername, password, setPassword, error }: any) => {
+type RegisterFormProps = {
+    onSubmit: () => void;
+    username: string;
+    setUsername: (value: string) => void;
+    password: string;
+    setPassword: (value: string) => void;
+    error?: string;
+};
+
+export const RegisterForm = ({
+                                 onSubmit,
+                                 username,
+                                 setUsername,
+                                 password,
+                                 setPassword,
+                                 error,
+                             }: RegisterFormProps) => {
     return (
         <div>
             <h2 className="text-2xl font-bold mb-4">Register</h2>
