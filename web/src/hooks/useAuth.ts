@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
 
-const apiUrl = "http://localhost:5001";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL
 
 type ErrorResponse = {
     message: string;
