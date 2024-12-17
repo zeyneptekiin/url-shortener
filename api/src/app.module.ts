@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UrlShortenerModule } from './url-shortener/url-shortener.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CoopMiddleware } from './coop.middleware';
 
 @Module({
   imports: [
@@ -22,4 +23,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     AuthModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CoopMiddleware).forRoutes('*');
+  }
+}
