@@ -6,6 +6,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { LoginForm } from "@/components/LoginForm";
 import { RegisterForm } from "@/components/RegisterForm";
 import { GoogleLoginWrapper } from "@/components/GoogleLoginWrapper";
+import {CredentialResponse} from "@react-oauth/google";
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -135,7 +136,7 @@ import { GoogleLoginWrapper } from "@/components/GoogleLoginWrapper";
                             setUsername={setUsername}
                             password={password}
                             setPassword={setPassword}
-                            error={localError || error}
+                            error={localError || error || undefined}
                         />
                     ) : (
                         <RegisterForm
@@ -144,7 +145,7 @@ import { GoogleLoginWrapper } from "@/components/GoogleLoginWrapper";
                             setUsername={setUsername}
                             password={password}
                             setPassword={setPassword}
-                            error={localError || error}
+                            error={localError || error || undefined}
                         />
                     )}
 
@@ -159,9 +160,15 @@ import { GoogleLoginWrapper } from "@/components/GoogleLoginWrapper";
                     </p>
 
                     <GoogleLoginWrapper
-                        onSuccess={({ credential }: { credential: string }) =>
-                            handleGoogleLoginSuccess(credential)
-                        }
+                        onSuccess={(response: CredentialResponse) => {
+                            const { credential } = response;
+                            if (credential) {
+                                handleGoogleLoginSuccess(credential);
+                            } else {
+                                setLocalError("Google login failed. Credential is undefined.");
+                                console.error("Google Credential is undefined.");
+                            }
+                        }}
                         onError={handleGoogleLoginFailure}
                     />
                 </div>
