@@ -9,21 +9,50 @@ type ErrorResponse = {
 
 export function useAuth() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const apiCall = async (
+        method: "GET" | "POST",
+        url: string,
+        data: object = {},
+        token?: string
+    ) => {
+        try {
+            const headers = token
+                ? { Authorization: `Bearer ${token}` }
+                : undefined;
+
+            const response = await axios({
+                method,
+                url: `${apiUrl}${url}`,
+                data,
+                headers,
+            });
+            return response.data;
+        } catch (err) {
+            const axiosError = err as AxiosError<ErrorResponse>;
+            const errorMessage =
+                axiosError.response?.data?.message || "Something went wrong!";
+            setError(errorMessage);
+            console.error("API Error:", errorMessage);
+            throw new Error(errorMessage);
+        }
+    };
 
     useEffect(() => {
         const checkToken = async () => {
+            setIsLoading(true);
             const token = localStorage.getItem("token");
+
             if (!token) {
                 setIsLoading(false);
+                setIsLoggedIn(false);
                 return;
             }
 
             try {
-                await axios.get(`${apiUrl}/auth/validate-token`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                await apiCall("GET", "/auth/validate-token", {}, token);
                 setIsLoggedIn(true);
             } catch {
                 localStorage.removeItem("token");
@@ -38,18 +67,14 @@ export function useAuth() {
 
     const login = async (username: string, password: string) => {
         setIsLoading(true);
-        setError("");
+        setError(null);
         try {
-            const response = await axios.post(`${apiUrl}/auth/login`, { username, password });
-            const { access_token } = response.data;
+            const { access_token } = await apiCall("POST", "/auth/login", {
+                username,
+                password,
+            });
             localStorage.setItem("token", access_token);
             setIsLoggedIn(true);
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                setError(error.response?.data?.message || "Login failed");
-            } else {
-                setError("An unknown error occurred.");
-            }
         } finally {
             setIsLoading(false);
         }
@@ -57,16 +82,9 @@ export function useAuth() {
 
     const register = async (username: string, password: string) => {
         setIsLoading(true);
-        setError("");
+        setError(null);
         try {
-            await axios.post(`${apiUrl}/auth/register`, {
-                username,
-                password,
-            });
-        } catch (err) {
-            const axiosError = err as AxiosError<ErrorResponse>;
-            setError(axiosError.response?.data?.message || "Registration failed");
-            throw axiosError;
+            await apiCall("POST", "/auth/register", { username, password });
         } finally {
             setIsLoading(false);
         }
@@ -74,18 +92,13 @@ export function useAuth() {
 
     const googleSignIn = async (credential: string) => {
         setIsLoading(true);
-        setError("");
+        setError(null);
         try {
-            const response = await axios.post(`${apiUrl}/auth/google-login`, {
+            const { access_token } = await apiCall("POST", "/auth/google-login", {
                 token: credential,
             });
-            const { access_token } = response.data;
             localStorage.setItem("token", access_token);
             setIsLoggedIn(true);
-        } catch (err) {
-            const axiosError = err as AxiosError<ErrorResponse>;
-            setError(axiosError.response?.data?.message || "Google login failed");
-            throw axiosError;
         } finally {
             setIsLoading(false);
         }
